@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Frasco de Mensagens — Digital</title>
+  <style>
+    :root{
+      --bg:#fff7fb;
+      --accent:#ff6b9a;
+      --jar:#e9f5ff;
+      --text:#222;
+      --card:#ffffff;
+      --shadow: 0 10px 30px rgba(17,17,17,0.08);
+      --glass-gradient: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(circle at 10% 10%, #fff0f6 0%, var(--bg) 25%, #f3fcff 100%);
+      color:var(--text);
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    .card{
+      width:100%;
+      max-width:980px;
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:20px;
+      align-items:start;
+    }
+
+    header{
+      grid-column: 1 / -1;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:4px;
+    }
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    p.lead{margin:0;color:#5b5b5b;font-size:14px}
+
+    /* Jar area */
+    .jar-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .jar{
+      width:320px;
+      height:420px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 30%), #f7fbff;
+      border-radius:40px 40px 28px 28px;
+      border:6px solid rgba(255,255,255,0.7);
+      position:relative;
+      box-shadow: 0 12px 30px rgba(14, 74, 135, 0.08), inset 0 -20px 30px rgba(0,0,0,0.03);
+      overflow:hidden;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-bottom:24px;
+      transition:transform .25s ease;
+    }
+
+    /* neck of jar */
+    .jar::before{
+      content:"";
+      position:absolute;
+      top:-44px;
+      left:50%;
+      transform:translateX(-50%);
+      width:180px;
+      height:100px;
+      border-radius:80px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.2));
+      filter:blur(0.4px);
+      z-index:2;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+
+    /* hearts container */
+    .hearts{
+      width:92%;
+      height:82%;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-content:flex-end;
+      padding:12px;
+      justify-content:center;
+      position:relative;
+      z-index:3;
+    }
+
+    .heart-btn{
+      width:60px;
+      height:60px;
+      border-radius:12px;
+      background:linear-gradient(180deg,#ffeef4,#ffd9e6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border:2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 6px 18px rgba(255,94,125,0.12);
+      transition: transform .18s ease, box-shadow .18s;
+      user-select:none;
+      font-weight:600;
+      color:#8b1e4a;
+    }
+    .heart-btn:hover{ transform:translateY(-6px); box-shadow:0 14px 30px rgba(255,94,125,0.14) }
+
+    /* controls */
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      padding:8px 12px;
+      border-radius:10px;
+      border:0;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--accent), #ef3a78);
+      color:white;
+      font-weight:600;
+      box-shadow:0 8px 20px rgba(234,76,134,0.14);
+    }
+    .btn.secondary{
+      background:transparent;
+      border:1px solid #eee;
+      color:#444;
+      box-shadow:none;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+      color:#555;
+    }
+
+    /* panel direita */
+    .panel{
+      padding:14px;
+      border-left:1px dashed rgba(0,0,0,0.04);
+    }
+    .panel h3{margin:0 0 8px 0}
+    .message-preview{
+      min-height:120px;
+      background:linear-gradient(180deg,#fff,#fff);
+      border-radius:12px;
+      padding:14px;
+      box-shadow: 0 6px 18px rgba(17,17,17,0.03);
+      color:#444;
+      font-size:15px;
+      white-space:pre-wrap;
+    }
+
+    /* modal message */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      background: rgba(6,7,12,0.35);
+      padding:18px;
+    }
+    .modal.show{ display:flex; }
+    .note{
+      width:100%;
+      max-width:540px;
+      background:var(--card);
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 26px 60px rgba(10,20,40,0.25);
+      text-align:center;
+      transform:translateY(18px) scale(.98);
+      opacity:0;
+      transition: transform .28s cubic-bezier(.2,.9,.3,1), opacity .28s;
+    }
+    .modal.show .note{ transform:translateY(0) scale(1); opacity:1 }
+    .note h2{margin:0 0 10px 0;color:var(--accent)}
+    .note p{margin:0 0 16px 0;color:#333; font-size:16px; line-height:1.45}
+    .note .small{font-size:13px;color:#777;margin-top:8px}
+    .note .actions{display:flex;gap:10px;justify-content:center;margin-top:14px}
+    .note .actions .btn{padding:10px 14px;border-radius:10px;font-weight:700}
+
+    footer{grid-column:1/-1;margin-top:6px;text-align:center;color:#888;font-size:13px}
+
+    /* responsive */
+    @media (max-width:900px){
+      .card{grid-template-columns:1fr; max-width:720px}
+      .jar{width:92%; height:360px}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <header>
+      <div>
+        <h1>Frasco de Mensagens 💌</h1>
+        <p class="lead">Clique em um bilhete (coração) para abrir uma mensagem especial.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn" id="openNext">Abrir próxima mensagem</button>
+        <button class="btn secondary" id="editMessagesBtn">Editar mensagens</button>
+      </div>
+    </header>
+
+    <div class="jar-wrap">
+      <div class="jar" id="jar">
+        <div class="hearts" id="heartsContainer" aria-hidden="false">
+          <!-- buttons gerados dinamicamente -->
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel" aria-labelledby="painel-title">
+      <h3 id="painel-title">Pré-visualização</h3>
+      <div class="message-preview" id="preview">
+        Clique em um coração à esquerda para ver a mensagem aqui.
+      </div>
+
+      <div class="controls">
+        <label class="toggle"><input type="checkbox" id="randomToggle"> Aleatório</label>
+        <button class="btn secondary" id="shuffleBtn">Embaralhar corações</button>
+        <button class="btn secondary" id="resetBtn">Reiniciar posição</button>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px dashed #eee">
+
+      <div style="font-size:13px;color:#666">
+        <strong>Dicas:</strong>
+        <ul style="margin:8px 0 0 18px;padding:0">
+          <li>Edite as mensagens clicando em "Editar mensagens".</li>
+          <li>Você pode usar texto, links ou instruções (ex: "Grave um áudio").</li>
+          <li>Para mudar o número de bilhetes, edite a lista no script.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <footer>Salve este arquivo e abra no navegador. Personalize o texto no array <code>messages</code> no script.</footer>
+  </div>
+
+  <!-- modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="note" role="document">
+      <h2 id="modalTitle">Mensagem</h2>
+      <p id="modalText">Texto</p>
+      <div class="small" id="modalIndex"></div>
+      <div class="actions">
+        <button class="btn secondary" id="prevBtn">Anterior</button>
+        <button class="btn" id="nextBtn">Próxima</button>
+        <button class="btn secondary" id="closeBtn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIG: edite aqui suas mensagens ===
+    const messages = [
+      "Motivo #1: Amo o seu sorriso quando você está feliz.",
+      "Motivo #2: Amo as conversas bobas que viram as melhores risadas.",
+      "Motivo #3: Amo como você me apoia mesmo nos dias difíceis.",
+      "Motivo #4: Nossa primeira viagem — nunca vou esquecer aquele pôr do sol.",
+      "Motivo #5: Amo seu abraço que acalma tudo.",
+      "Motivo #6: Amo como você me desafia a ser melhor.",
+      "Motivo #7: Amo nossas playlists e danças na sala.",
+      "Motivo #8: Amo suas mensagens de bom dia — me alegram sempre.",
+      "Motivo #9: Amo te olhar dormindo (shh) e sentir paz.",
+      "Motivo #10: Amo seus conselhos sinceros e seu cuidado.",
+      "Motivo #11: Amo planejar o futuro com você, mesmo que seja simples.",
+      "Motivo #12: Amo você — hoje, amanhã e sempre. 💖"
+    ];
+    // =========================================
+
+    // estados
+    let currentIndex = 0;
+    let order = Array.from({length: messages.length}, (_,i)=>i);
+    const heartsContainer = document.getElementById('heartsContainer');
+    const preview = document.getElementById('preview');
+    const randomToggle = document.getElementById('randomToggle');
+    const modal = document.getElementById('modal');
+    const modalText = document.getElementById('modalText');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalIndex = document.getElementById('modalIndex');
+
+    // cria botões de corações conforme messages.length
+    function buildHearts(){
+      heartsContainer.innerHTML = '';
+      order.forEach((origIndex, pos) => {
+        const btn = document.createElement('button');
+        btn.className = 'heart-btn';
+        btn.type = 'button';
+        btn.setAttribute('data-index', origIndex);
+        btn.setAttribute('aria-label', 'Bilhete ' + (pos+1));
+        btn.innerHTML = `<span>💌<br><small style="font-size:11px;opacity:.85">${pos+1}</small></span>`;
+        btn.addEventListener('click', () => openMessage(origIndex));
+        heartsContainer.appendChild(btn);
+      });
+    }
+
+    // abre modal com a mensagem
+    function openMessage(idx){
+      currentIndex = idx;
+      showModalWith(idx);
+      updatePreview(idx);
+    }
+
+    // atualiza preview lateral
+    function updatePreview(idx){
+      preview.textContent = messages[idx] || '';
+    }
+
+    // mostra modal
+    function showModalWith(idx){
+      modalText.textContent = messages[idx] || '';
+      modalTitle.textContent = `Mensagem ${idx + 1}`;
+      modalIndex.textContent = `Bilhete ${order.indexOf(idx)+1} de ${messages.length}`;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    // fecha modal
+    function closeModal(){
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    // next / prev com ciclo
+    function nextIndex(){
+      if(randomToggle.checked){
+        // escolhe um índice aleatório diferente do atual se possível
+        if(messages.length === 1) return 0;
+        let r;
+        do { r = Math.floor(Math.random()*messages.length); } while(r === currentIndex);
+        return r;
+      } else {
+        // sequencial pelo order, encontra posição atual na order e pega próximo
+        const pos = order.indexOf(currentIndex);
+        const nextPos = (pos + 1) % order.length;
+        return order[nextPos];
+      }
+    }
+    function prevIndex(){
+      const pos = order.indexOf(currentIndex);
+      const prevPos = (pos - 1 + order.length) % order.length;
+      return order[prevPos];
+    }
+
+    // shuffle order array
+    function shuffleOrder(){
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      buildHearts();
+    }
+    function resetOrder(){
+      order = Array.from({length: messages.length}, (_,i)=>i);
+      buildHearts();
+    }
+
+    // botões UI
+    document.getElementById('openNext').addEventListener('click', () => {
+      if(typeof currentIndex !== 'number') currentIndex = 0;
+      const nxt = nextIndex();
+      openMessage(nxt);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const nxt = nextIndex();
+      openMessage(nxt);
+    });
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      const prev = prevIndex();
+      openMessage(prev);
+    });
+    document.getElementById('closeBtn').addEventListener('click', closeModal);
+    document.getElementById('shuffleBtn').addEventListener('click', shuffleOrder);
+    document.getElementById('resetBtn').addEventListener('click', resetOrder);
+
+    // editar mensagens: simples prompt (modo rápido)
+    document.getElementById('editMessagesBtn').addEventListener('click', () => {
+      const c = confirm('Deseja substituir todas as mensagens por um conjunto novo? (Cancel = editar individualmente)');
+      if(c){
+        const txt = prompt('Cole as mensagens separadas por linha (use ENTER entre cada mensagem):', messages.join('\n'));
+        if(txt !== null){
+          const newMsgs = txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+          if(newMsgs.length){
+            // atualiza array (mantendo no script runtime apenas)
+            messages.length = 0;
+            newMsgs.forEach(m=>messages.push(m));
+            resetOrder();
+            alert('Mensagens atualizadas! Salve o arquivo para persistir as mudanças.');
+          } else alert('Nenhuma mensagem válida encontrada.');
+        }
+      } else {
+        // editar indivíduo: seleciona número
+        const indexStr = prompt('Qual número de mensagem você quer editar? (1 a '+messages.length+')');
+        const i = parseInt(indexStr,10) - 1;
+        if(!isNaN(i) && i >= 0 && i < messages.length){
+          const newText = prompt('Nova mensagem:', messages[i]);
+          if(newText !== null){ messages[i] = newText.trim(); alert('Mensagem atualizada!'); updatePreview(i); }
+        } else alert('Número inválido.');
+      }
+    });
+
+    // fecha modal clicando no fundo
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    // inicialização
+    resetOrder();
+
+    // acessibilidade: tecla ESC para fechar
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') closeModal();
+      if(e.key === 'ArrowRight' && modal.classList.contains('show')) {
+        const nxt = nextIndex(); openMessage(nxt);
+      }
+      if(e.key === 'ArrowLeft' && modal.classList.contains('show')) {
+        const prev = prevIndex(); openMessage(prev);
+      }
+    });
+
+    // adiciona pequenas animações ao clicar (efeito breve)
+    heartsContainer.addEventListener('click', (e) => {
+      if(e.target.closest('.heart-btn')){
+        const btn = e.target.closest('.heart-btn');
+        btn.style.transform = 'translateY(-10px) scale(0.98)';
+        setTimeout(()=> btn.style.transform = '', 220);
+      }
+    });
+  </script>
+</body>
+</html>
