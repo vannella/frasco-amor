@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Frasco de Amor para Kleven H.</title>
 <style>
-  body {
+   body {
     margin: 0;
     background: #000 url("3a652a95-a1c2-4364-9cf8-2086fff3749d.jpg") center/cover no-repeat;
     color: #fff;
@@ -18,7 +18,7 @@
     justify-content: center;
     position: relative;
   }
-
+  
   /* Camada translúcida sobre a imagem */
   body::before {
     content: "";
@@ -50,18 +50,9 @@
     font-style: italic;
   }
 
-  /* Container principal centralizado */
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 20px;
-  }
-
   /* Frasco (jar) */
   .jar {
+    position: relative;
     width: 300px;
     height: 400px;
     border: 3px solid #ccc;
@@ -69,10 +60,6 @@
     box-shadow: 0 0 20px #fff5;
     overflow: hidden;
     background: radial-gradient(circle at bottom, rgba(255, 255, 255, 0.05) 0%, rgba(255,255,255,0.02) 70%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto;
   }
 
   /* Corações */
@@ -113,9 +100,9 @@
   /* Frase ao clicar */
   .message {
     position: absolute;
-    top: 15%; /* afastada do topo */
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%);
     background: rgba(0,0,0,0.85);
     padding: 20px 30px;
     border-radius: 15px;
@@ -128,6 +115,7 @@
 
   /* Botão de reiniciar */
   button {
+    margin-top: 20px;
     background: #ff4081;
     border: none;
     color: white;
@@ -164,13 +152,12 @@
 </head>
 <body>
 
-<h1>🔐 Frasco de Amor para Kleven H.</h1>
+<h1> Frasco de Amor para Kleven H.</h1>
+<div class="jar" id="jar"></div>
 
-<div class="container">
-  <div class="jar" id="jar"></div>
-  <div class="message" id="messageBox"></div>
-  <button id="resetBtn">💖 Abrir</button>
-</div>
+<div class="message" id="messageBox"></div>
+
+<button id="resetBtn">💖 Abrir </button>
 
 <footer>by vannella^^</footer>
 
